@@ -1,0 +1,27 @@
+{if APEX$IS_LAZY_LOADING/}
+<div class="ak-Card ak-Card--#STYLE#{if ?SIZE/} ak-Card--size-#SIZE#{endif/} is-placeholder" aria-hidden="true">
+  <div class="ak-Card-media"></div>
+  <div class="ak-Card-title"></div>
+  <div class="ak-Card-subtitle"></div>
+  <div class="ak-Card-description"></div>
+</div>
+{else/}
+<article class="ak-Card ak-Card--#STYLE#{if ?SIZE/} ak-Card--size-#SIZE#{endif/}{if ?ACCENT/} ak-Card--accent-#ACCENT#{endif/}{if ?CSS_CLASSES/} #CSS_CLASSES#{endif/}">
+  {if ?FULL_CARD_LINK/}<a class="ak-Card-fullLink" href="#FULL_CARD_LINK#" #FULL_CARD_LINK_ATTR# aria-label="#TITLE!ATTR#"></a>{endif/}
+  {case STYLE/}{when flip/}<div class="ak-Flip" tabindex="0"><div class="ak-Flip-face ak-Flip-front">{when flipIcon/}<div class="ak-Flip" tabindex="0"><div class="ak-Flip-face ak-Flip-front">{when flipNumber/}<div class="ak-Flip" tabindex="0"><div class="ak-Flip-face ak-Flip-front">{endcase/}
+  {if ?IMAGE/}<div class="ak-Card-media"><img class="ak-Card-image" src="#IMAGE#" alt="#IMAGE_DESCRIPTION!ATTR#" loading="lazy"></div>{endif/}
+  {if ?BADGE/}<span class="ak-Card-badge">#BADGE#</span>{endif/}
+  {if ?ICON/}<div class="ak-Card-icon" aria-hidden="true"><span class="fa #ICON#"></span></div>{endif/}
+  <h3 class="ak-Card-title">#TITLE#</h3>
+  {if ?SUBTITLE/}<p class="ak-Card-subtitle">#SUBTITLE#</p>{endif/}
+  {if ?VALUE/}<div class="ak-Card-value">#VALUE#</div>{endif/}
+  {case STYLE/}{when flip/}</div><div class="ak-Flip-face ak-Flip-back"><p class="ak-Card-backTitle">#TITLE#</p>{when flipIcon/}</div><div class="ak-Flip-face ak-Flip-back"><p class="ak-Card-backTitle">#TITLE#</p>{when flipNumber/}</div><div class="ak-Flip-face ak-Flip-back"><p class="ak-Card-backTitle">#TITLE#</p>{endcase/}
+  {case STYLE/}{when jersey/}<div class="ak-Card-hero">{if ?IMAGE/}<img class="ak-Card-heroShadow" src="#IMAGE#" alt="" aria-hidden="true"><img class="ak-Card-heroLogo" src="#IMAGE#" alt="#IMAGE_DESCRIPTION!ATTR#">{else/}<span class="ak-Card-heroShadow" aria-hidden="true">#VALUE#</span><span class="ak-Card-heroValue">#VALUE#</span>{endif/}</div>{endcase/}
+  {if ?RATING/}<div class="ak-Card-rating" role="img" aria-label="#RATING!ATTR# out of 5"><span class="ak-Card-stars" style="--ak-rating: #RATING!ATTR#"></span><span class="ak-Card-ratingValue" aria-hidden="true">#RATING#</span></div>{endif/}
+  {if ?DESCRIPTION/}<p class="ak-Card-description">#DESCRIPTION#</p>{endif/}
+  {if ?PRICE/}<div class="ak-Card-meta"><span class="ak-Card-metaItem">{if ?PRICE_ICON/}<span class="ak-Card-metaIcon fa #PRICE_ICON#" aria-hidden="true"></span>{endif/}{if ?PRICE_PREFIX/}#PRICE_PREFIX# {endif/}<strong>#PRICE#</strong></span>{if ?CODE/}<span class="ak-Card-metaItem">{if ?CODE_ICON/}<span class="ak-Card-metaIcon fa #CODE_ICON#" aria-hidden="true"></span>{endif/}<strong>#CODE#</strong></span>{endif/}</div>{else/}{if ?CODE/}<div class="ak-Card-meta"><span class="ak-Card-metaItem">{if ?CODE_ICON/}<span class="ak-Card-metaIcon fa #CODE_ICON#" aria-hidden="true"></span>{endif/}<strong>#CODE#</strong></span></div>{endif/}{endif/}
+  {if ?FOOTER/}<div class="ak-Card-footer">{if ?TREND/}<span class="ak-Card-trend ak-Card-trend--#TREND_DIRECTION#">#TREND#</span> {endif/}#FOOTER#</div>{else/}{if ?TREND/}<div class="ak-Card-footer"><span class="ak-Card-trend ak-Card-trend--#TREND_DIRECTION#">#TREND#</span></div>{endif/}{endif/}
+  {if ?PRIMARY_ACTIONS/}<div class="ak-Card-actions"><div class="ak-Card-primary">#PRIMARY_ACTIONS#</div>{if ?SECONDARY_ACTIONS/}<div class="ak-Card-secondary">#SECONDARY_ACTIONS#</div>{endif/}</div>{else/}{if ?SECONDARY_ACTIONS/}<div class="ak-Card-actions"><div class="ak-Card-secondary">#SECONDARY_ACTIONS#</div></div>{endif/}{endif/}
+  {case STYLE/}{when flip/}</div></div>{when flipIcon/}</div></div>{when flipNumber/}</div></div>{endcase/}
+</article>
+{endif/}

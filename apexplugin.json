@@ -1,0 +1,48 @@
+{
+  "name": "Modern Cards",
+  "version": "2.1",
+  "description": "<p>15 card designs in one template component, for report regions and single cards.</p><p>Travel Inset / Travel Overlay: photo cards with price and code meta row, call to action and favorite button. Stat: dashboard metric with a floating accent icon tile, value, trend and footer. Glass: frosted card over a soft color mesh.</p><p>Requires Oracle APEX 26.2 or later. Documentation, updates and more plug-ins: https://www.techrevx.com</p>",
+  "keywords": [
+    "oracle",
+    "apex",
+    "plugin",
+    "techrevx",
+    "cards",
+    "template component",
+    "dashboard",
+    "metrics",
+    "travel",
+    "product",
+    "glassmorphism"
+  ],
+  "homepage": "https://github.com/aamirkhanz/apex-plugin-modern-cards",
+  "bugs": {
+    "url": "https://github.com/aamirkhanz/apex-plugin-modern-cards/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "TechRevX",
+    "url": "https://www.techrevx.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aamirkhanz/apex-plugin-modern-cards.git"
+  },
+  "oracle": {
+    "versions": [
+      "19c",
+      "21c",
+      "23ai"
+    ],
+    "apex": {
+      "versions": [
+        "26.2"
+      ],
+      "plugin": {
+        "internalName": "COM.TECHREVX.MODERN_CARDS",
+        "type": "template component",
+        "previewImage": "https://raw.githubusercontent.com/aamirkhanz/apex-plugin-modern-cards/main/screenshots/preview.png"
+      }
+    }
+  }
+}

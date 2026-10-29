@@ -1,0 +1,1504 @@
+/*
+ * Modern Cards template component
+ * Report:  ul.ak-Cards (--cols2 ... --cols5) > li.ak-Cards-item
+ * Card:    article.ak-Card.ak-Card--<design> [.ak-Card--size-<size>] [.ak-Card--accent-<name>]
+ *          designs: inset, overlay, stat, glass, glow, spotlight, product, profile, feature, brutal, testimonial,
+ *                   jersey, flip, flipIcon, flipNumber
+ *          sizes:   xs, sm, md (default), lg, xl
+ *          accents: dark, info, success, primary, warning, danger, violet, gold
+ * Parts:   ak-Card-media, -badge, -icon, -title, -subtitle, -value, -rating, -description, -meta, -footer, -actions
+ * Actions: .ak-Card-btn, --hot, --icon, .is-active (akCards.toggle)
+ * The card is one flat list of parts; each design arranges them with flex order or grid areas.
+ */
+
+/* ---------- Report grid ---------- */
+.ak-Cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--ak-min, 17rem), 100%), 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0 0 1rem;
+  list-style: none;
+}
+
+.ak-Cards--cols2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ak-Cards--cols3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ak-Cards--cols4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ak-Cards--cols5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+@media (max-width: 1199px) {
+  .ak-Cards--cols4,
+  .ak-Cards--cols5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 991px) {
+  .ak-Cards--cols3,
+  .ak-Cards--cols4,
+  .ak-Cards--cols5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639px) {
+  .ak-Cards[class*="ak-Cards--cols"] { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ak-Cards-item {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+}
+
+/* ---------- Sizes ----------
+   zoom scales every length inside the card (text, spacing, icons, min-heights, shadows) while the
+   card still fills its grid cell. With Columns = Auto the minimum column width follows the size. */
+.ak-Card--size-xs { zoom: .75; }
+.ak-Card--size-sm { zoom: .875; }
+.ak-Card--size-lg { zoom: 1.125; }
+.ak-Card--size-xl { zoom: 1.25; }
+
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-xs) { --ak-min: 12.5rem; gap: 1rem; }
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-sm) { --ak-min: 14.75rem; gap: 1.25rem; }
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-lg) { --ak-min: 22rem; gap: 1.75rem; }
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-xl) { --ak-min: 30rem; gap: 2rem; }
+
+/* ---------- Tokens and accents ---------- */
+.ak-Card {
+  --ak-bg: var(--ut-region-background-color, #fff);
+  --ak-text: #18181b;
+  --ak-muted: #71717a;
+  --ak-border: rgba(0, 0, 0, .08);
+  /* layered shadows: contact + ambient + key light; designs override these two tokens */
+  --ak-shadow:
+    0 1px 2px rgba(16, 24, 40, .05),
+    0 4px 8px -2px rgba(16, 24, 40, .06),
+    0 12px 24px -8px rgba(16, 24, 40, .10);
+  --ak-shadow-hover:
+    0 2px 4px rgba(16, 24, 40, .05),
+    0 12px 20px -6px rgba(16, 24, 40, .10),
+    0 28px 48px -12px rgba(16, 24, 40, .20);
+  --ak-lift: -4px;
+  --ak-ease: cubic-bezier(.2, .8, .2, 1);
+  --ak-placeholder: rgba(0, 0, 0, .06);
+  --ak-active: #e5484d;
+  --ak-up: #16a34a;
+  --ak-down: #dc2626;
+
+  --ak-accent: linear-gradient(195deg, #42424a 0%, #191919 100%);
+  --ak-accent-solid: #27272a;
+  --ak-accent-soft: rgba(39, 39, 42, .08);
+  --ak-accent-shadow: rgba(64, 64, 64, .4);
+}
+
+.ak-Card--accent-dark    { --ak-accent: linear-gradient(195deg, #42424a 0%, #191919 100%); --ak-accent-solid: #27272a; --ak-accent-soft: rgba(39, 39, 42, .08);   --ak-accent-shadow: rgba(64, 64, 64, .4); }
+.ak-Card--accent-info    { --ak-accent: linear-gradient(195deg, #49a3f1 0%, #1a73e8 100%); --ak-accent-solid: #1a73e8; --ak-accent-soft: rgba(26, 115, 232, .1);  --ak-accent-shadow: rgba(26, 115, 232, .4); }
+.ak-Card--accent-success { --ak-accent: linear-gradient(195deg, #66bb6a 0%, #43a047 100%); --ak-accent-solid: #2e7d32; --ak-accent-soft: rgba(67, 160, 71, .12);  --ak-accent-shadow: rgba(76, 175, 80, .4); }
+.ak-Card--accent-primary { --ak-accent: linear-gradient(195deg, #ec407a 0%, #d81b60 100%); --ak-accent-solid: #d81b60; --ak-accent-soft: rgba(216, 27, 96, .1);   --ak-accent-shadow: rgba(233, 30, 99, .4); }
+.ak-Card--accent-warning { --ak-accent: linear-gradient(195deg, #ffa726 0%, #fb8c00 100%); --ak-accent-solid: #c2410c; --ak-accent-soft: rgba(251, 140, 0, .12);  --ak-accent-shadow: rgba(255, 152, 0, .4); }
+.ak-Card--accent-danger  { --ak-accent: linear-gradient(195deg, #ef5350 0%, #e53935 100%); --ak-accent-solid: #dc2626; --ak-accent-soft: rgba(229, 57, 53, .1);   --ak-accent-shadow: rgba(244, 67, 54, .4); }
+.ak-Card--accent-violet  { --ak-accent: linear-gradient(195deg, #a78bfa 0%, #6d28d9 100%); --ak-accent-solid: #7c3aed; --ak-accent-soft: rgba(124, 58, 237, .1);  --ak-accent-shadow: rgba(124, 58, 237, .4); }
+
+.ak-Card--accent-gold    { --ak-accent: linear-gradient(195deg, #e2cf4c 0%, #b9a32a 100%); --ak-accent-solid: #8a7a10; --ak-accent-soft: rgba(192, 178, 54, .16); --ak-accent-shadow: rgba(192, 178, 54, .45); }
+
+/* ---------- Base card and parts ---------- */
+.ak-Card {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: .75rem;
+  min-width: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--ak-border);
+  border-radius: 1rem;
+  background: var(--ak-bg);
+  box-shadow: var(--ak-shadow);
+  color: var(--ak-text);
+  isolation: isolate;
+  transition: transform .3s var(--ak-ease), box-shadow .3s var(--ak-ease), border-color .3s ease;
+}
+
+.ak-Card:hover {
+  transform: translateY(var(--ak-lift));
+  box-shadow: var(--ak-shadow-hover);
+}
+
+.ak-Card:has(.ak-Card-fullLink) { cursor: pointer; }
+
+.ak-Card.is-placeholder,
+.ak-Card.is-placeholder:hover {
+  transform: none;
+  box-shadow: var(--ak-shadow);
+}
+
+.ak-Card-fullLink {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+}
+
+.ak-Card-fullLink:focus-visible {
+  outline: 3px solid rgba(24, 24, 27, .35);
+  outline-offset: -3px;
+}
+
+.ak-Card-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--ak-placeholder);
+}
+
+.ak-Card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ak-Card-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: .25rem .625rem;
+  border-radius: 999px;
+  background: var(--ak-accent-soft);
+  color: var(--ak-accent-solid);
+  font-size: .75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ak-Card-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: .75rem;
+  background: var(--ak-accent-soft);
+  color: var(--ak-accent-solid);
+  font-size: 1.25rem;
+  transition: transform .3s var(--ak-ease), box-shadow .3s var(--ak-ease);
+}
+
+/* Font APEX sets a fixed 16px on .fa; let icons follow their container's size */
+.ak-Card-icon > .fa,
+.ak-Card-btnIcon.fa,
+.ak-Card-metaIcon.fa { font-size: inherit; line-height: 1; }
+
+.ak-Card-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1.3;
+  color: inherit;
+}
+
+.ak-Card-subtitle {
+  margin: 0;
+  font-size: .875rem;
+  line-height: 1.45;
+  color: var(--ak-muted);
+}
+
+.ak-Card-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+}
+
+.ak-Card-description {
+  margin: 0;
+  font-size: .9375rem;
+  line-height: 1.6;
+  color: var(--ak-muted);
+}
+
+.ak-Card-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .875rem;
+}
+
+.ak-Card-stars {
+  --ak-rating: 0;
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: .1em;
+}
+
+.ak-Card-stars::before {
+  content: "\2605\2605\2605\2605\2605";
+  background: linear-gradient(90deg, #f59e0b calc(var(--ak-rating) * 20%), #d4d4d8 calc(var(--ak-rating) * 20%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ak-Card-ratingValue {
+  font-weight: 600;
+  color: var(--ak-muted);
+}
+
+.ak-Card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1.25rem;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.ak-Card-metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.ak-Card-metaIcon { font-size: 1rem; opacity: .55; }
+.ak-Card-metaItem strong { font-weight: 700; }
+
+.ak-Card-footer {
+  font-size: .875rem;
+  line-height: 1.5;
+  color: var(--ak-muted);
+}
+
+.ak-Card-trend { font-weight: 700; }
+.ak-Card-trend--up { color: var(--ak-up); }
+.ak-Card-trend--down { color: var(--ak-down); }
+.ak-Card-trend--neutral { color: inherit; }
+
+/* ---------- Actions ---------- */
+.ak-Card-actions {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-block-start: auto;
+  padding-block-start: .5rem;
+}
+
+.ak-Card-primary {
+  display: flex;
+  flex: 1 1 auto;
+  gap: .5rem;
+  min-width: 0;
+}
+
+.ak-Card-secondary {
+  display: flex;
+  gap: .5rem;
+}
+
+.ak-Card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 1px solid var(--ak-border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ak-text);
+  font: inherit;
+  font-size: .9375rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform .15s ease, background-color .15s ease, color .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.ak-Card-btn:hover { text-decoration: none; background: #f4f4f5; }
+.ak-Card-btn:active { transform: scale(.98); }
+
+.ak-Card-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.ak-Card-btn--hot {
+  border-color: transparent;
+  background: #18181b;
+  color: #fff;
+}
+
+.ak-Card-btn--hot:hover { background: #000; color: #fff; }
+
+.ak-Card-btn--icon {
+  flex: 0 0 auto;
+  width: 2.75rem;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.125rem;
+}
+
+.ak-Card-btn--icon:active { transform: scale(.92); }
+
+.ak-Card-btn[aria-disabled="true"],
+.ak-Card-btn:disabled {
+  opacity: .5;
+  pointer-events: none;
+}
+
+.ak-Card-primary .ak-Card-btn { flex: 1 1 auto; }
+.ak-Card-btnCaret { font-size: .75rem; opacity: .7; }
+.ak-Card-btn.is-active { color: var(--ak-active); }
+
+/* ==========================================================================
+   Travel - Inset / Overlay
+   ========================================================================== */
+.ak-Card--inset,
+.ak-Card--overlay {
+  --ak-frame: .625rem;
+  --ak-media-radius: 1.5rem;
+
+  --ak-shadow:
+    0 1px 2px rgba(16, 24, 40, .04),
+    0 8px 16px -6px rgba(16, 24, 40, .08),
+    0 24px 40px -16px rgba(16, 24, 40, .16);
+  --ak-shadow-hover:
+    0 2px 4px rgba(16, 24, 40, .05),
+    0 16px 28px -8px rgba(16, 24, 40, .14),
+    0 36px 60px -20px rgba(16, 24, 40, .28);
+  --ak-lift: -6px;
+
+  gap: 0;
+  padding: var(--ak-frame);
+  border: 0;
+  border-radius: 2rem;
+  overflow: hidden;
+}
+
+.ak-Card--inset .ak-Card-image,
+.ak-Card--overlay .ak-Card-image { transition: transform .7s var(--ak-ease); }
+
+.ak-Card--inset:hover .ak-Card-image,
+.ak-Card--overlay:hover .ak-Card-image { transform: scale(1.05); }
+
+.ak-Card--inset > :not(.ak-Card-media):not(.ak-Card-fullLink),
+.ak-Card--overlay > :not(.ak-Card-media):not(.ak-Card-fullLink) { margin-inline: 1.25rem; }
+
+.ak-Card--inset .ak-Card-media,
+.ak-Card--overlay .ak-Card-media { border-radius: var(--ak-media-radius); }
+
+.ak-Card--inset .ak-Card-title,
+.ak-Card--overlay .ak-Card-title {
+  margin-block-start: 1.25rem;
+  font-size: 1.75rem;
+  letter-spacing: -.03em;
+  line-height: 1.15;
+}
+
+.ak-Card--inset .ak-Card-subtitle,
+.ak-Card--overlay .ak-Card-subtitle {
+  margin-block-start: .375rem;
+  font-size: 1rem;
+  color: #a1a1aa;
+}
+
+.ak-Card--inset .ak-Card-meta,
+.ak-Card--overlay .ak-Card-meta { margin-block-start: 1.25rem; }
+
+.ak-Card--inset .ak-Card-actions,
+.ak-Card--overlay .ak-Card-actions { padding-block: 1.25rem .875rem; }
+
+.ak-Card--inset .ak-Card-btn,
+.ak-Card--overlay .ak-Card-btn {
+  min-height: 3.5rem;
+  font-size: 1rem;
+}
+
+.ak-Card--inset .ak-Card-btn--icon,
+.ak-Card--overlay .ak-Card-btn--icon {
+  width: 3.5rem;
+  font-size: 1.25rem;
+}
+
+.ak-Card--inset .ak-Card-media { aspect-ratio: 1 / 1; }
+
+.ak-Card--inset .ak-Card-btn--hot {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 6px 14px -6px rgba(0, 0, 0, .5);
+}
+
+.ak-Card--inset .ak-Card-secondary .ak-Card-btn {
+  background: #fff;
+  color: var(--ak-active);
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, .15);
+}
+
+.ak-Card--inset .ak-Card-secondary .ak-Card-btn:hover { background: #fff5f5; }
+
+/* Overlay: photo behind everything (negative z-index inside the isolated card), so the
+   unpositioned actions row lets the secondary action sit in the card's top corner. */
+.ak-Card--overlay {
+  justify-content: flex-end;
+  min-height: 34rem;
+  color: #fff;
+}
+
+.ak-Card--overlay .ak-Card-media {
+  position: absolute;
+  inset: var(--ak-frame);
+  z-index: -1;
+  /* overflow + border-radius alone does not clip the backdrop-filter fade in Chromium */
+  clip-path: inset(0 round var(--ak-media-radius));
+}
+
+.ak-Card--overlay .ak-Card-media::after {
+  content: "";
+  position: absolute;
+  inset: 45% 0 0;
+  border-radius: 0 0 var(--ak-media-radius) var(--ak-media-radius);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .35) 45%, rgba(0, 0, 0, .7) 100%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 35%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 35%);
+}
+
+.ak-Card--overlay .ak-Card-subtitle { color: rgba(255, 255, 255, .7); }
+.ak-Card--overlay .ak-Card-metaIcon { opacity: .8; }
+.ak-Card--overlay .ak-Card-title { margin-block-start: auto; }
+.ak-Card--overlay .ak-Card-actions { position: static; margin-block-start: 0; padding-block-end: 1.25rem; }
+
+.ak-Card--overlay .ak-Card-primary {
+  position: relative;
+  z-index: 4;
+}
+
+.ak-Card--overlay .ak-Card-primary .ak-Card-btn {
+  border: 0;
+  background: linear-gradient(180deg, #fff 0%, #ececef 100%);
+  color: #18181b;
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, .6);
+}
+
+.ak-Card--overlay .ak-Card-primary .ak-Card-btn:hover { background: #fff; }
+
+.ak-Card--overlay .ak-Card-secondary {
+  position: absolute;
+  top: calc(var(--ak-frame) + .75rem);
+  right: calc(var(--ak-frame) + .75rem);
+  z-index: 4;
+}
+
+.ak-Card--overlay .ak-Card-secondary .ak-Card-btn {
+  border-color: rgba(255, 255, 255, .35);
+  background: rgba(255, 255, 255, .18);
+  color: #fff;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.ak-Card--overlay .ak-Card-secondary .ak-Card-btn:hover { background: rgba(255, 255, 255, .3); }
+.ak-Card--overlay .ak-Card-secondary .ak-Card-btn.is-active { background: #fff; color: var(--ak-active); }
+
+/* ==========================================================================
+   Stat - floating accent icon tile
+   ========================================================================== */
+.ak-Card--stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icon    title"
+    "icon    value"
+    "footer  footer"
+    "actions actions";
+  --ak-shadow:
+    0 1px 3px rgba(16, 24, 40, .06),
+    0 6px 12px -4px rgba(16, 24, 40, .08),
+    0 16px 32px -12px rgba(16, 24, 40, .14);
+  --ak-shadow-hover:
+    0 2px 4px rgba(16, 24, 40, .06),
+    0 14px 24px -8px rgba(16, 24, 40, .12),
+    0 30px 50px -16px rgba(16, 24, 40, .24);
+
+  gap: 0 1rem;
+  margin-block-start: 1.5rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: .75rem;
+  color: #344767;
+}
+
+.ak-Card--stat .ak-Card-icon {
+  grid-area: icon;
+  width: 4rem;
+  height: 4rem;
+  margin-block-start: -1.5rem;
+  border-radius: .75rem;
+  background: var(--ak-accent);
+  color: #fff;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, .14), 0 7px 10px -5px var(--ak-accent-shadow);
+}
+
+.ak-Card--stat:hover .ak-Card-icon {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 10px 28px 0 rgba(0, 0, 0, .18), 0 16px 22px -10px var(--ak-accent-shadow);
+}
+
+.ak-Card--stat .ak-Card-title {
+  grid-area: title;
+  padding-block-start: .5rem;
+  font-size: .875rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-align: end;
+  color: #7b809a;
+}
+
+.ak-Card--stat .ak-Card-value {
+  grid-area: value;
+  padding-block-end: 1rem;
+  text-align: end;
+  color: #344767;
+}
+
+.ak-Card--stat .ak-Card-footer {
+  grid-area: footer;
+  position: relative;
+  padding-block: .75rem 1rem;
+  font-weight: 300;
+  color: #7b809a;
+}
+
+.ak-Card--stat .ak-Card-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, .4), transparent);
+  opacity: .25;
+}
+
+.ak-Card--stat .ak-Card-actions {
+  grid-area: actions;
+  padding-block: 0 1rem;
+}
+
+/* ==========================================================================
+   Glass - frosted panel over a soft color mesh
+   ========================================================================== */
+.ak-Card--glass {
+  --ak-glass-tint: var(--ak-accent-solid);
+
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(120% 90% at 0% 0%, var(--ak-glass-tint) 0%, transparent 55%),
+    radial-gradient(90% 80% at 100% 100%, #ec4899 0%, transparent 55%),
+    radial-gradient(70% 60% at 100% 0%, #22d3ee 0%, transparent 50%),
+    #0f172a;
+  --ak-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 8px 16px -8px rgba(15, 23, 42, .35), 0 24px 44px -20px rgba(15, 23, 42, .6);
+  --ak-shadow-hover: inset 0 1px 0 rgba(255, 255, 255, .3), 0 14px 24px -10px rgba(15, 23, 42, .4), 0 36px 64px -24px rgba(15, 23, 42, .75);
+  color: #fff;
+  overflow: hidden;
+}
+
+.ak-Card--glass:not([class*="ak-Card--accent-"]) { --ak-glass-tint: #6366f1; }
+
+.ak-Card--glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(255, 255, 255, .06);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+}
+
+.ak-Card--glass .ak-Card-icon {
+  border: 1px solid rgba(255, 255, 255, .25);
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+
+.ak-Card--glass .ak-Card-badge {
+  border: 1px solid rgba(255, 255, 255, .25);
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+
+.ak-Card--glass .ak-Card-subtitle,
+.ak-Card--glass .ak-Card-description { color: rgba(255, 255, 255, .75); }
+
+.ak-Card--glass .ak-Card-btn {
+  border-color: rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+}
+
+.ak-Card--glass .ak-Card-btn:hover { background: rgba(255, 255, 255, .22); }
+.ak-Card--glass .ak-Card-btn--hot { background: #fff; color: #0f172a; }
+.ak-Card--glass .ak-Card-btn--hot:hover { background: #f1f5f9; color: #0f172a; }
+
+.ak-Card--glass .ak-Card-badge,
+.ak-Card--glow .ak-Card-badge,
+.ak-Card--spotlight .ak-Card-badge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Glow Border - animated gradient ring
+   ========================================================================== */
+@property --ak-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.ak-Card--glow {
+  --ak-ring: 1.5px;
+
+  --ak-shadow: 0 4px 10px -4px rgba(16, 24, 40, .08), 0 18px 40px -18px var(--ak-accent-shadow);
+  --ak-shadow-hover: 0 8px 16px -6px rgba(16, 24, 40, .1), 0 28px 60px -16px var(--ak-accent-shadow), 0 0 0 4px var(--ak-accent-soft);
+
+  border: 0;
+  border-radius: 1.25rem;
+  background: transparent;
+}
+
+.ak-Card--glow:hover::before { animation-duration: 2.5s; }
+
+.ak-Card--glow::before,
+.ak-Card--glow::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+}
+
+/* the ring */
+.ak-Card--glow::before {
+  inset: 0;
+  z-index: -2;
+  background: conic-gradient(from var(--ak-angle), var(--ak-accent-solid), #ec4899, #f59e0b, #22d3ee, var(--ak-accent-solid));
+  animation: ak-spin 6s linear infinite;
+}
+
+/* the card surface inside the ring */
+.ak-Card--glow::after {
+  inset: var(--ak-ring);
+  z-index: -1;
+  border-radius: calc(1.25rem - var(--ak-ring));
+  background: var(--ak-bg);
+}
+
+.ak-Card--glow .ak-Card-icon { background: var(--ak-accent); color: #fff; }
+
+@keyframes ak-spin {
+  to { --ak-angle: 360deg; }
+}
+
+/* ==========================================================================
+   Spotlight - dark card, light follows the pointer
+   ========================================================================== */
+.ak-Card--spotlight {
+  --ak-x: 50%;
+  --ak-y: 0%;
+  --ak-spot: var(--ak-accent-solid);
+
+  --ak-shadow: 0 4px 10px -4px rgba(0, 0, 0, .3), 0 20px 40px -24px rgba(0, 0, 0, .8);
+  --ak-shadow-hover: 0 10px 20px -8px rgba(0, 0, 0, .4), 0 32px 60px -24px rgba(0, 0, 0, .9), 0 0 40px -12px color-mix(in srgb, var(--ak-spot) 45%, transparent);
+
+  border-color: rgba(255, 255, 255, .1);
+  background: #0a0a0a;
+  color: #fafafa;
+  overflow: hidden;
+}
+
+.ak-Card--spotlight:not([class*="ak-Card--accent-"]),
+.ak-Card--spotlight.ak-Card--accent-dark { --ak-spot: #8b5cf6; }
+
+.ak-Card--spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(28rem circle at var(--ak-x) var(--ak-y), color-mix(in srgb, var(--ak-spot) 38%, transparent), transparent 45%);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+.ak-Card--spotlight:hover { border-color: rgba(255, 255, 255, .2); }
+.ak-Card--spotlight:hover::before { opacity: 1; }
+
+.ak-Card--spotlight .ak-Card-icon {
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(255, 255, 255, .06);
+  color: #fff;
+}
+
+.ak-Card--spotlight .ak-Card-badge { background: rgba(255, 255, 255, .08); color: #e4e4e7; }
+
+.ak-Card--spotlight .ak-Card-subtitle,
+.ak-Card--spotlight .ak-Card-description { color: #a1a1aa; }
+
+.ak-Card--spotlight .ak-Card-btn {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .06);
+  color: #fafafa;
+}
+
+.ak-Card--spotlight .ak-Card-btn:hover { background: rgba(255, 255, 255, .12); }
+.ak-Card--spotlight .ak-Card-btn--hot { background: #fafafa; color: #0a0a0a; }
+.ak-Card--spotlight .ak-Card-btn--hot:hover { background: #fff; color: #0a0a0a; }
+
+/* ==========================================================================
+   Product - shop card
+   ========================================================================== */
+.ak-Card--product {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "media       media"
+    "subtitle    subtitle"
+    "title       title"
+    "rating      rating"
+    "description description"
+    "value       actions";
+  gap: .375rem .75rem;
+  padding: .5rem .5rem 1rem;
+  border-radius: 1.25rem;
+}
+
+.ak-Card--product > :not(.ak-Card-media):not(.ak-Card-fullLink):not(.ak-Card-badge) { margin-inline: .5rem; }
+
+.ak-Card--product .ak-Card-media {
+  grid-area: media;
+  aspect-ratio: 4 / 3;
+  margin-block-end: .5rem;
+  border-radius: 1rem;
+}
+
+.ak-Card--product .ak-Card-image { transition: transform .5s ease; }
+.ak-Card--product:hover .ak-Card-image { transform: scale(1.04); }
+
+.ak-Card--product .ak-Card-badge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 2;
+  background: #18181b;
+  color: #fff;
+}
+
+.ak-Card--product .ak-Card-subtitle {
+  grid-area: subtitle;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.ak-Card--product .ak-Card-title { grid-area: title; font-size: 1.0625rem; }
+.ak-Card--product .ak-Card-rating { grid-area: rating; }
+
+.ak-Card--product .ak-Card-description {
+  grid-area: description;
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: .875rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.ak-Card--product .ak-Card-value {
+  grid-area: value;
+  align-self: center;
+  margin-block-start: .5rem;
+  font-size: 1.375rem;
+}
+
+.ak-Card--product .ak-Card-actions {
+  grid-area: actions;
+  align-self: center;
+  margin-block-start: .5rem;
+  padding: 0;
+  gap: .5rem;
+}
+
+.ak-Card--product .ak-Card-secondary .ak-Card-btn { color: var(--ak-active); }
+
+/* ==========================================================================
+   Profile - accent cover band with avatar
+   ========================================================================== */
+.ak-Card--profile {
+  --ak-cover: var(--ak-accent);
+
+  align-items: center;
+  gap: .5rem;
+  padding: 3rem 1.5rem 1.5rem;
+  border-radius: 1.25rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.ak-Card--profile:not([class*="ak-Card--accent-"]) { --ak-cover: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); }
+
+.ak-Card--profile::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -1;
+  height: 6rem;
+  background: var(--ak-cover);
+}
+
+.ak-Card--profile .ak-Card-media,
+.ak-Card--profile .ak-Card-icon {
+  width: 6rem;
+  height: 6rem;
+  margin-block-end: .5rem;
+  border: 4px solid var(--ak-bg);
+  border-radius: 50%;
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, .35);
+}
+
+.ak-Card--profile .ak-Card-icon {
+  background: var(--ak-cover);
+  color: #fff;
+  font-size: 2.25rem;
+}
+
+/* photo wins over the icon when both are given */
+.ak-Card--profile .ak-Card-media ~ .ak-Card-icon { display: none; }
+
+.ak-Card--profile .ak-Card-title { font-size: 1.25rem; }
+.ak-Card--profile .ak-Card-badge { order: 1; align-self: center; }
+.ak-Card--profile .ak-Card-description { order: 2; }
+
+.ak-Card--profile .ak-Card-actions {
+  order: 3;
+  width: 100%;
+  padding-block-start: 1rem;
+}
+
+/* ==========================================================================
+   Feature - clean bordered card with link action
+   ========================================================================== */
+.ak-Card--feature {
+  --ak-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+  --ak-shadow-hover: 0 2px 4px rgba(16, 24, 40, .04), 0 16px 32px -16px rgba(16, 24, 40, .22);
+  --ak-lift: -3px;
+
+  border-color: #e4e4e7;
+  border-radius: .75rem;
+}
+
+.ak-Card--feature:hover { border-color: #d4d4d8; }
+.ak-Card--feature:hover .ak-Card-icon { transform: scale(1.08) rotate(-4deg); }
+
+.ak-Card--feature .ak-Card-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-block-end: .25rem;
+  border-radius: .625rem;
+}
+
+.ak-Card--feature .ak-Card-badge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.ak-Card--feature .ak-Card-title { font-size: 1rem; font-weight: 600; }
+
+.ak-Card--feature .ak-Card-primary .ak-Card-btn {
+  flex: 0 0 auto;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ak-accent-solid);
+  font-size: .875rem;
+}
+
+.ak-Card--feature .ak-Card-primary .ak-Card-btn::after {
+  content: "\2192";
+  transition: transform .2s ease;
+}
+
+.ak-Card--feature .ak-Card-primary .ak-Card-btn:hover::after { transform: translateX(3px); }
+
+/* ==========================================================================
+   Neubrutalism - thick borders, offset shadow, bold accent background
+   ========================================================================== */
+.ak-Card--brutal {
+  --ak-brutal-bg: #fde047;
+
+  --ak-shadow: 6px 6px 0 #000;
+  --ak-shadow-hover: 9px 9px 0 #000;
+
+  border: 3px solid #000;
+  border-radius: .75rem;
+  background: var(--ak-brutal-bg);
+  color: #000;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.ak-Card--brutal.ak-Card--accent-dark    { --ak-brutal-bg: #e5e7eb; }
+.ak-Card--brutal.ak-Card--accent-info    { --ak-brutal-bg: #93c5fd; }
+.ak-Card--brutal.ak-Card--accent-success { --ak-brutal-bg: #86efac; }
+.ak-Card--brutal.ak-Card--accent-primary { --ak-brutal-bg: #f9a8d4; }
+.ak-Card--brutal.ak-Card--accent-warning { --ak-brutal-bg: #fdba74; }
+.ak-Card--brutal.ak-Card--accent-danger  { --ak-brutal-bg: #fca5a5; }
+.ak-Card--brutal.ak-Card--accent-violet  { --ak-brutal-bg: #c4b5fd; }
+
+.ak-Card--brutal:hover { transform: translate(-3px, -3px); }
+
+.ak-Card--brutal .ak-Card-media {
+  aspect-ratio: 16 / 10;
+  border: 2px solid #000;
+  border-radius: .5rem;
+}
+
+.ak-Card--brutal .ak-Card-icon {
+  border: 2px solid #000;
+  border-radius: .5rem;
+  background: #fff;
+  box-shadow: 3px 3px 0 #000;
+  color: #000;
+}
+
+.ak-Card--brutal .ak-Card-badge {
+  border-radius: .375rem;
+  background: #000;
+  color: #fff;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.ak-Card--brutal .ak-Card-title { font-size: 1.375rem; font-weight: 800; }
+
+.ak-Card--brutal .ak-Card-subtitle,
+.ak-Card--brutal .ak-Card-description { color: #000; font-weight: 500; opacity: .8; }
+
+.ak-Card--brutal .ak-Card-btn {
+  border: 2px solid #000;
+  border-radius: .5rem;
+  background: #fff;
+  box-shadow: 3px 3px 0 #000;
+  color: #000;
+  font-weight: 700;
+}
+
+.ak-Card--brutal .ak-Card-btn:hover {
+  background: #fff;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #000;
+}
+
+.ak-Card--brutal .ak-Card-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000;
+}
+
+.ak-Card--brutal .ak-Card-btn--hot,
+.ak-Card--brutal .ak-Card-btn--hot:hover { background: #000; color: #fff; }
+
+/* ==========================================================================
+   Testimonial - stars, quote and author
+   ========================================================================== */
+.ak-Card--testimonial {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "rating      rating"
+    "description description"
+    "media       title"
+    "media       subtitle"
+    "actions     actions";
+  grid-template-rows: auto 1fr auto auto auto;
+  gap: 0 .875rem;
+  padding: 1.75rem;
+  border-radius: 1.25rem;
+}
+
+.ak-Card--testimonial::before {
+  content: "\201C";
+  position: absolute;
+  top: .25rem;
+  right: 1.25rem;
+  z-index: -1;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 6rem;
+  line-height: 1;
+  color: rgba(0, 0, 0, .06);
+}
+
+.ak-Card--testimonial .ak-Card-rating {
+  grid-area: rating;
+  margin-block-end: 1rem;
+}
+
+.ak-Card--testimonial .ak-Card-description {
+  grid-area: description;
+  margin-block-end: 1.5rem;
+  font-size: 1.0625rem;
+  color: #27272a;
+}
+
+.ak-Card--testimonial .ak-Card-media,
+.ak-Card--testimonial .ak-Card-icon {
+  grid-area: media;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+}
+
+.ak-Card--testimonial .ak-Card-icon { background: var(--ak-accent); color: #fff; font-size: 1.125rem; }
+.ak-Card--testimonial .ak-Card-media ~ .ak-Card-icon { display: none; }
+
+.ak-Card--testimonial .ak-Card-title {
+  grid-area: title;
+  align-self: end;
+  font-size: .9375rem;
+}
+
+.ak-Card--testimonial .ak-Card-subtitle {
+  grid-area: subtitle;
+  align-self: start;
+  font-size: .8125rem;
+}
+
+.ak-Card--testimonial .ak-Card-actions {
+  grid-area: actions;
+  padding-block-start: 1.25rem;
+}
+
+/* ==========================================================================
+   Long Shadow (jersey) - flat card, huge number or logo with a fading long shadow
+   The shadow is a black copy of the number/logo extruded with a short doubling chain of drop-shadows,
+   then faded towards the bottom-right with a mask. Its box is padded out to the
+   bottom-right (and pulled back with negative margins) so the mask covers the trail.
+   ========================================================================== */
+.ak-Card--jersey {
+  --ak-flat: #5472c8;
+  --ak-trail: 17rem;
+  /* doubling chain: each step copies everything drawn so far, so 8 passes give a solid 0-255px extrusion */
+  --ak-long-shadow:
+    drop-shadow(1px 1px 0 #000)
+    drop-shadow(2px 2px 0 #000)
+    drop-shadow(4px 4px 0 #000)
+    drop-shadow(8px 8px 0 #000)
+    drop-shadow(16px 16px 0 #000)
+    drop-shadow(32px 32px 0 #000)
+    drop-shadow(64px 64px 0 #000)
+    drop-shadow(128px 128px 0 #000);
+  --ak-shadow: 0 1px 2px rgba(0, 0, 0, .1), 0 10px 24px -12px rgba(0, 0, 0, .35);
+  --ak-shadow-hover: 0 2px 4px rgba(0, 0, 0, .12), 0 24px 44px -16px rgba(0, 0, 0, .45);
+
+  align-items: center;
+  gap: 0;
+  min-height: 22rem;
+  aspect-ratio: 7 / 10;
+  padding: 2.5rem 1.5rem 2rem;
+  border: 0;
+  border-radius: .375rem;
+  background: var(--ak-flat);
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+
+.ak-Card--jersey.ak-Card--accent-dark    { --ak-flat: #3b4252; }
+.ak-Card--jersey.ak-Card--accent-info    { --ak-flat: #5472c8; }
+.ak-Card--jersey.ak-Card--accent-success { --ak-flat: #36a746; }
+.ak-Card--jersey.ak-Card--accent-primary { --ak-flat: #d63a6d; }
+.ak-Card--jersey.ak-Card--accent-warning { --ak-flat: #e0661f; }
+.ak-Card--jersey.ak-Card--accent-danger  { --ak-flat: #d64541; }
+.ak-Card--jersey.ak-Card--accent-violet  { --ak-flat: #7d5fc7; }
+.ak-Card--jersey.ak-Card--accent-gold    { --ak-flat: #c0b236; }
+
+/* single-column phones: the 7:10 shape would make a very tall card */
+@media (max-width: 639px) {
+  .ak-Card--jersey {
+    min-height: 24rem;
+    aspect-ratio: auto;
+  }
+}
+
+/* the hero block below replaces the generic media and value parts */
+.ak-Card--jersey > .ak-Card-media,
+.ak-Card--jersey > .ak-Card-value { display: none; }
+
+.ak-Card--jersey .ak-Card-subtitle {
+  order: -1;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.ak-Card--jersey .ak-Card-title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  letter-spacing: -.02em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.ak-Card-hero {
+  display: grid;
+  flex: 1 1 auto;
+  place-items: center;
+  width: 100%;
+  margin-block-start: 1.5rem;
+  transition: transform .4s var(--ak-ease);
+}
+
+.ak-Card-heroValue,
+.ak-Card-heroShadow,
+.ak-Card-heroLogo {
+  grid-area: 1 / 1;
+}
+
+.ak-Card-heroValue,
+span.ak-Card-heroShadow {
+  font-size: clamp(5rem, 9vw, 8.5rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+
+.ak-Card-heroValue,
+.ak-Card-heroLogo {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+
+.ak-Card-heroLogo,
+img.ak-Card-heroShadow {
+  width: 55%;
+  max-height: 10rem;
+  object-fit: contain;
+}
+
+.ak-Card-heroShadow {
+  box-sizing: content-box;
+  margin: 0 calc(var(--ak-trail) * -1) calc(var(--ak-trail) * -1) 0;
+  padding: 0 var(--ak-trail) var(--ak-trail) 0;
+  color: #000;
+  opacity: .22;
+  filter: var(--ak-long-shadow);
+  -webkit-mask-image: linear-gradient(135deg, #000 15%, transparent 60%);
+  mask-image: linear-gradient(135deg, #000 15%, transparent 60%);
+  pointer-events: none;
+}
+
+img.ak-Card-heroShadow { filter: brightness(0) var(--ak-long-shadow); }
+
+.ak-Card--jersey:hover .ak-Card-hero { transform: scale(1.04); }
+
+.ak-Card--jersey .ak-Card-description {
+  order: 2;
+  margin-block-start: 1rem;
+  font-size: .875rem;
+  color: rgba(255, 255, 255, .85);
+}
+
+.ak-Card--jersey .ak-Card-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(255, 255, 255, .2);
+  color: #fff;
+}
+
+.ak-Card--jersey .ak-Card-actions {
+  order: 3;
+  width: 100%;
+}
+
+.ak-Card--jersey .ak-Card-btn {
+  border-color: rgba(255, 255, 255, .35);
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+}
+
+.ak-Card--jersey .ak-Card-btn:hover { background: rgba(255, 255, 255, .25); }
+.ak-Card--jersey .ak-Card-btn--hot { background: #fff; color: #18181b; }
+.ak-Card--jersey .ak-Card-btn--hot:hover { background: #f4f4f5; color: #18181b; }
+/* ==========================================================================
+   Flip cards - flip, flipIcon, flipNumber
+   .ak-Flip holds two faces in one grid cell (the card takes the taller face's height).
+   Flips on hover (mouse), on tap (.is-flipped, set by modern-cards.js) and while the
+   card or one of its back-face buttons has keyboard focus.
+   ========================================================================== */
+.ak-Card--flip,
+.ak-Card--flipIcon,
+.ak-Card--flipNumber {
+  --ak-shadow: none;
+  --ak-shadow-hover: none;
+  --ak-lift: 0px;
+  --ak-face-shadow:
+    0 1px 2px rgba(16, 24, 40, .05),
+    0 6px 12px -4px rgba(16, 24, 40, .08),
+    0 20px 36px -14px rgba(16, 24, 40, .18);
+
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  perspective: 1400px;
+}
+
+.ak-Flip {
+  position: relative;
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 20rem;
+  border-radius: 1.25rem;
+  outline: none;
+  transform-style: preserve-3d;
+  transition: transform .7s var(--ak-ease);
+  cursor: pointer;
+}
+
+.ak-Flip-face {
+  grid-area: 1 / 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  min-width: 0;
+  padding: 1.5rem;
+  border-radius: inherit;
+  box-shadow: var(--ak-face-shadow);
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.ak-Flip-back { transform: rotateY(180deg); }
+.ak-Card--flipIcon .ak-Flip-back { transform: rotateX(180deg); }
+
+@media (hover: hover) {
+  .ak-Card--flip:hover .ak-Flip,
+  .ak-Card--flipNumber:hover .ak-Flip { transform: rotateY(180deg); }
+  .ak-Card--flipIcon:hover .ak-Flip { transform: rotateX(-180deg); }
+}
+
+/* keyboard focus (not mouse clicks) holds the card flipped, also while a back-face button is focused */
+.ak-Card--flip .ak-Flip.is-flipped,
+.ak-Card--flip .ak-Flip:focus-visible,
+.ak-Card--flip .ak-Flip:has(:focus-visible),
+.ak-Card--flipNumber .ak-Flip.is-flipped,
+.ak-Card--flipNumber .ak-Flip:focus-visible,
+.ak-Card--flipNumber .ak-Flip:has(:focus-visible) { transform: rotateY(180deg); }
+
+.ak-Card--flipIcon .ak-Flip.is-flipped,
+.ak-Card--flipIcon .ak-Flip:focus-visible,
+.ak-Card--flipIcon .ak-Flip:has(:focus-visible) { transform: rotateX(-180deg); }
+
+.ak-Flip:focus-visible .ak-Flip-face { box-shadow: var(--ak-face-shadow), 0 0 0 3px var(--ak-accent-shadow); }
+
+.ak-Card-backTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.ak-Flip-back .ak-Card-actions { padding-block-start: .75rem; }
+
+/* hint that the card has a back side */
+.ak-Flip-front::after {
+  content: "\21BB";
+  position: absolute;
+  right: 1rem;
+  bottom: .875rem;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: .45;
+}
+
+/* ---------- Flip - Photo ---------- */
+.ak-Card--flip .ak-Flip { min-height: 24rem; }
+
+.ak-Card--flip .ak-Flip-front {
+  justify-content: flex-end;
+  padding: 1.75rem;
+  background: #18181b;
+  color: #fff;
+}
+
+.ak-Card--flip .ak-Card-media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 0;
+}
+
+.ak-Card--flip .ak-Card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .75) 100%);
+}
+
+.ak-Card--flip .ak-Card-title { font-size: 1.5rem; letter-spacing: -.02em; }
+.ak-Card--flip .ak-Card-subtitle { color: rgba(255, 255, 255, .75); }
+
+.ak-Card--flip .ak-Card-badge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  background: rgba(255, 255, 255, .9);
+  color: #18181b;
+}
+
+.ak-Card--flip .ak-Flip-back {
+  justify-content: center;
+  padding: 1.75rem;
+  background: var(--ak-accent);
+  color: #fff;
+}
+
+.ak-Card--flip:not([class*="ak-Card--accent-"]) .ak-Flip-back { background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); }
+
+.ak-Card--flip .ak-Flip-back .ak-Card-description { color: rgba(255, 255, 255, .88); }
+.ak-Card--flip .ak-Flip-back .ak-Card-ratingValue { color: rgba(255, 255, 255, .85); }
+.ak-Card--flip .ak-Flip-back .ak-Card-actions { margin-block-start: .5rem; }
+
+.ak-Card--flip .ak-Flip-back .ak-Card-btn {
+  border-color: rgba(255, 255, 255, .4);
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+
+.ak-Card--flip .ak-Flip-back .ak-Card-btn--hot { border-color: transparent; background: #fff; color: #18181b; }
+
+/* ---------- Flip - Icon ---------- */
+.ak-Card--flipIcon .ak-Flip-front {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--ak-accent);
+  color: #fff;
+}
+
+.ak-Card--flipIcon:not([class*="ak-Card--accent-"]) .ak-Flip-front { background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); }
+
+.ak-Card--flipIcon .ak-Card-icon {
+  width: 5rem;
+  height: 5rem;
+  margin-block-end: .75rem;
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  font-size: 2.25rem;
+}
+
+.ak-Card--flipIcon .ak-Card-title { font-size: 1.375rem; }
+.ak-Card--flipIcon .ak-Card-subtitle { color: rgba(255, 255, 255, .8); }
+
+.ak-Card--flipIcon .ak-Card-badge {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: rgba(255, 255, 255, .2);
+  color: #fff;
+}
+
+.ak-Card--flipIcon .ak-Flip-back {
+  justify-content: center;
+  background: var(--ak-bg);
+  border: 1px solid var(--ak-border);
+}
+
+.ak-Card--flipIcon .ak-Flip-back .ak-Card-backTitle { color: var(--ak-accent-solid); }
+
+/* ---------- Flip - Number ---------- */
+.ak-Card--flipNumber .ak-Flip-front {
+  justify-content: center;
+  background: var(--ak-bg);
+  border: 1px solid var(--ak-border);
+}
+
+.ak-Card--flipNumber .ak-Card-icon { margin-block-end: .5rem; }
+
+.ak-Card--flipNumber .ak-Card-value {
+  order: -1;
+  font-size: clamp(2.75rem, 5vw, 3.75rem);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1;
+  color: var(--ak-accent-solid);
+}
+
+.ak-Card--flipNumber .ak-Card-icon { order: -2; }
+.ak-Card--flipNumber .ak-Card-title { font-size: 1rem; font-weight: 600; }
+
+.ak-Card--flipNumber .ak-Card-badge {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+}
+
+.ak-Card--flipNumber .ak-Flip-back {
+  justify-content: center;
+  background: #18181b;
+  color: #fafafa;
+}
+
+.ak-Card--flipNumber .ak-Flip-back .ak-Card-description { color: #a1a1aa; }
+.ak-Card--flipNumber .ak-Flip-back .ak-Card-footer { color: #a1a1aa; }
+.ak-Card--flipNumber .ak-Flip-back .ak-Card-trend--up { color: #4ade80; }
+.ak-Card--flipNumber .ak-Flip-back .ak-Card-trend--down { color: #f87171; }
+
+.ak-Card--flipNumber .ak-Flip-back .ak-Card-btn {
+  border-color: rgba(255, 255, 255, .15);
+  background: rgba(255, 255, 255, .08);
+  color: #fafafa;
+}
+
+.ak-Card--flipNumber .ak-Flip-back .ak-Card-btn--hot { border-color: transparent; background: #fafafa; color: #18181b; }
+/* ---------- Lazy loading placeholders ---------- */
+.ak-Card.is-placeholder .ak-Card-media,
+.ak-Card.is-placeholder .ak-Card-title,
+.ak-Card.is-placeholder .ak-Card-subtitle,
+.ak-Card.is-placeholder .ak-Card-description {
+  background: var(--ak-placeholder);
+  border-radius: .5rem;
+  animation: ak-pulse 1.4s ease-in-out infinite;
+}
+
+.ak-Card.is-placeholder .ak-Card-media { aspect-ratio: 4 / 3; border-radius: 1rem; }
+.ak-Card.is-placeholder .ak-Card-title { width: 60%; height: 1.5rem; }
+.ak-Card.is-placeholder .ak-Card-subtitle { width: 40%; height: 1rem; }
+.ak-Card.is-placeholder .ak-Card-description { width: 85%; height: 2.5rem; }
+.ak-Card--stat.is-placeholder .ak-Card-media { display: none; }
+
+@keyframes ak-pulse {
+  50% { opacity: .5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ak-Card,
+  .ak-Card *,
+  .ak-Card::before,
+  .ak-Card::after { transition: none !important; animation: none !important; }
+
+  /* keep the stronger shadow as hover feedback, drop the movement */
+  .ak-Card:hover,
+  .ak-Card:hover .ak-Card-icon,
+  .ak-Card:hover .ak-Card-image,
+  .ak-Card:hover .ak-Card-hero { transform: none !important; }
+
+  /* flip cards still turn over, just without the rotation animation */
+  .ak-Flip { transition: none !important; }
+}
