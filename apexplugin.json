@@ -1,7 +1,7 @@
 {
   "name": "Modern Cards",
   "version": "2.1",
-  "description": "<p>15 card designs in one template component, for report regions and single cards.</p><p>Travel Inset / Travel Overlay: photo cards with price and code meta row, call to action and favorite button. Stat: dashboard metric with a floating accent icon tile, value, trend and footer. Glass: frosted card over a soft color mesh.</p><p>Live demo: https://oracleapex.com/ords/r/aamirkhanz/plugins/modern-cards (user demo, password Demo).</p><p>Requires Oracle APEX 26.2 or later. Documentation, updates and more plug-ins: https://www.techrevx.com</p>",
+  "description": "<p>15 card designs in one template component, for report regions and single cards.</p><p>Travel Inset / Travel Overlay: photo cards with price and code meta row, call to action and favorite button. Stat: dashboard metric with a floating accent icon tile, value, trend and footer. Glass: frosted card over a soft color mesh.</p><p>Live demo: sign in as demo with the password Demo.</p><p>Requires Oracle APEX 26.2 or later. Documentation, updates and more plug-ins: https://www.techrevx.com</p>",
   "keywords": [
     "oracle",
     "apex",

@@ -2,16 +2,15 @@
 
 15 card designs in one template component, for report regions and single cards.
 
-![Modern Cards](screenshots/preview.png)
+[![Live demo](https://img.shields.io/badge/Live_demo-0f7b72?style=for-the-badge)](https://oracleapex.com/ords/r/aamirkhanz/plugins/modern-cards) &nbsp; Sign in as `demo` with the password `Demo`.
 
-**[Live demo](https://oracleapex.com/ords/r/aamirkhanz/plugins/modern-cards)**: sign in as `demo` with the password `Demo`.
+![Modern Cards](screenshots/preview.png)
 
 | | |
 |---|---|
 | **Type** | Template component plug-in |
 | **Internal name** | `COM.TECHREVX.MODERN_CARDS` |
 | **Version** | 2.1 |
-| **Live demo** | [oracleapex.com/ords/r/aamirkhanz/plugins/modern-cards](https://oracleapex.com/ords/r/aamirkhanz/plugins/modern-cards) (user `demo`, password `Demo`) |
 | **Requires** | Oracle APEX 26.2 or later |
 | **License** | MIT |
 
