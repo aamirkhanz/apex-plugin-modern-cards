@@ -14,8 +14,8 @@
 /* ---------- Report grid ---------- */
 .ak-Cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(var(--ak-min, 17rem), 100%), 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--ak-min, 14.5rem), 100%), 1fr));
+  gap: 1.25rem;
   margin: 0;
   padding: 0 0 1rem;
   list-style: none;
@@ -49,16 +49,18 @@
 
 /* ---------- Sizes ----------
    zoom scales every length inside the card (text, spacing, icons, min-heights, shadows) while the
-   card still fills its grid cell. With Columns = Auto the minimum column width follows the size. */
-.ak-Card--size-xs { zoom: .75; }
-.ak-Card--size-sm { zoom: .875; }
-.ak-Card--size-lg { zoom: 1.125; }
-.ak-Card--size-xl { zoom: 1.25; }
+   card still fills its grid cell. With Columns = Auto the minimum column width follows the size.
+   Medium (and a card without a size) is 85 %; Large is the designs' natural size. */
+.ak-Card { zoom: .85; }
+.ak-Card--size-xs { zoom: .6; }
+.ak-Card--size-sm { zoom: .72; }
+.ak-Card--size-lg { zoom: 1; }
+.ak-Card--size-xl { zoom: 1.15; }
 
-.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-xs) { --ak-min: 12.5rem; gap: 1rem; }
-.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-sm) { --ak-min: 14.75rem; gap: 1.25rem; }
-.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-lg) { --ak-min: 22rem; gap: 1.75rem; }
-.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-xl) { --ak-min: 30rem; gap: 2rem; }
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-xs) { --ak-min: 10rem; gap: .875rem; }
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-sm) { --ak-min: 12.25rem; gap: 1rem; }
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-lg) { --ak-min: 17rem; gap: 1.5rem; }
+.ak-Cards:has(> .ak-Cards-item > .ak-Card--size-xl) { --ak-min: 22rem; gap: 1.75rem; }
 
 /* ---------- Tokens and accents ---------- */
 .ak-Card {

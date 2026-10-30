@@ -10,7 +10,7 @@
 |---|---|
 | **Type** | Template component plug-in |
 | **Internal name** | `COM.TECHREVX.MODERN_CARDS` |
-| **Version** | 2.1 |
+| **Version** | 2.2 |
 | **Requires** | Oracle APEX 26.2 or later |
 | **License** | MIT |
 
